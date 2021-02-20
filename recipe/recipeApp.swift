@@ -6,12 +6,19 @@
 //
 
 import SwiftUI
+import Firebase
 
 @main
 struct recipeApp: App {
+    init() {
+            
+            FirebaseApp.configure()
+            
+        }
+    
     var body: some Scene {
         WindowGroup {
-            TabbedRootView()
+            LoginView()
         }
     }
 }

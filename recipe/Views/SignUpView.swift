@@ -6,12 +6,16 @@
 //
 
 import SwiftUI
+import Firebase
+import SPAlert
 
 struct SignUpView: View {
     @State private var name: String = ""
     @State private var userName: String = ""
     @State private var password: String = ""
     @State private var email: String = ""
+    
+    @State private var docRef: DocumentReference!
     
     var body: some View {
         ZStack{
@@ -96,6 +100,30 @@ struct SignUpView: View {
                 Spacer().frame(height: 30)
                 
                 Button(action: {
+                    let dataToSave: [String: Any] =
+                        [
+                            "username": self.userName,
+                            "password": self.password,
+                            "name": self.name,
+                            "email": self.email
+                        ]
+                    
+                    print("setting docRef")
+                    self.docRef = Firestore.firestore().document("users/\(UUID().uuidString)")
+                    
+                    print("setting data")
+                    self.docRef.setData(dataToSave) { (error) in
+                        if let error = error{
+                            print("error = \(error)")
+                        } else {
+                            let alertView = SPAlertView(title: "Account created successful", message: "Valid username", preset: SPAlertIconPreset.done)
+                            
+                            alertView.present(duration: 3)
+                            print("no error")
+                        }
+                        
+                    }
+                    
                     print("here")
                 }) {
                     HStack{
