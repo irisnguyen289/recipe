@@ -14,6 +14,11 @@ struct NewPostView: View {
     @State private var showImagePicker = false
     @State private var sourceType: UIImagePickerController.SourceType = .camera
     
+    @State var halfModalShown = false
+    @State var halfModal_title: String = "title"
+    @State var halfModal_placeholder: String = "placeholder"
+    @State var halfModal_val: String = ""
+    
     // Sample data
     var steps: [Step] = [
         Step(description: "add egg", order: 1),
@@ -41,6 +46,7 @@ struct NewPostView: View {
     ]
     
     var body: some View {
+        ZStack{
             VStack{
                 ZStack{
                     // Chosen image
@@ -67,10 +73,10 @@ struct NewPostView: View {
                             Button(action: {
                                 self.showSheet.toggle()
                             }) {
-                                Image(systemName: "plus.circle")
+                                Image(systemName: "plus.circle.fill")
                                     .font(.system(size: 30))
                                     .foregroundColor(.black)
-                                    .background(Color.white)
+                                    .shadow(radius: 3)
                                     .cornerRadius(15)
                                     .opacity(0.7)
                                     .padding()
@@ -93,42 +99,82 @@ struct NewPostView: View {
                 }
                 HStack{
                     // Ingredients view
-                    VStack(spacing: 0) {
-                        Text("Ingredients")
+                    ZStack{
+                        VStack(spacing: 0) {
+                            Text("Ingredients")
+                                .padding()
+                            
+                            ScrollView{
+                                HStack(spacing: 0) {
+                                    VStack(alignment: .leading) {
+                                        ForEach(ingredients, id: \.id) {ingr in
+                                            Text("\(ingr.amount) \(ingr.name)")
+                                        }
+                                    }.padding()
+                                    
+                                    Spacer()
+                                }
+                            }.frame(width: UIScreen.main.bounds.size.width / 2)
+                            .clipped()
+                        }.background(Color.yellow)
                         
-                        ScrollView{
-                            HStack(spacing: 0) {
-                                VStack(alignment: .leading) {
-                                    ForEach(ingredients, id: \.id) {ingr in
-                                        Text("\(ingr.amount) \(ingr.name)")
-                                    }
-                                }.padding()
-                                
+                        VStack{
+                            HStack{
                                 Spacer()
+                                
+                                Button(action: {
+                                    self.halfModal_title = "Add new ingredient"
+                                    self.halfModal_placeholder = "E.g.: Egg"
+                                    self.halfModalShown.toggle()
+                                }){
+                                    Image(systemName: "plus.circle")
+                                        .padding()
+                                }
                             }
-                        }.frame(width: UIScreen.main.bounds.size.width / 2)
-                        .clipped()
-                    }.background(Color.yellow)
+                            Spacer()
+                        }
+                    }
                     
                     // Steps view
-                    VStack(spacing: 0) {
-                        Text("Steps")
+                    ZStack{
+                        VStack(spacing: 0) {
+                            Text("Steps").padding()
+                            
+                            ScrollView{
+                                HStack(spacing: 0) {
+                                    VStack(alignment: .leading) {
+                                        ForEach(steps, id: \.id) {step in
+                                            Text(step.description)
+                                        }
+                                    }.padding()
+                                    
+                                    Spacer()
+                                }
+                            }.frame(width: UIScreen.main.bounds.size.width / 2)
+                            .clipped()
+                        }.background(Color.green)
                         
-                        ScrollView{
-                            HStack(spacing: 0) {
-                                VStack(alignment: .leading) {
-                                    ForEach(steps, id: \.id) {step in
-                                        Text(step.description)
-                                    }
-                                }.padding()
-                                
+                        VStack{
+                            HStack{
                                 Spacer()
+                                
+                                Button(action: {
+                                    self.halfModal_title = "Add new step"
+                                    self.halfModal_placeholder = "E.g.: Add sugar"
+                                    
+                                    self.halfModalShown.toggle()
+                                }){
+                                    Image(systemName: "plus.circle")
+                                        .padding()
+                                }
                             }
-                        }.frame(width: UIScreen.main.bounds.size.width / 2)
-                        .clipped()
-                    }.background(Color.green)
+                            Spacer()
+                        }
+                    }
                 }
             }
+            .navigationBarTitle("")
+            .navigationBarHidden(true)
             .sheet(isPresented: $showImagePicker) {
                 VStack{
                     ScrollView(.horizontal) {
@@ -145,6 +191,16 @@ struct NewPostView: View {
                     imagePicker(image: self.$image, sourceType: self.sourceType)
                     
                 }
+            }
+            
+            HalfModalView(isShown: $halfModalShown) {
+                VStack{
+                    Text("\(self.halfModal_title)")
+                    CustomTextField(
+                        placeholder: Text("\(self.halfModal_placeholder)").foregroundColor(Color.gray),
+                        text: self.$halfModal_val)
+                }
+            }
         }
     }
 }

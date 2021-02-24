@@ -40,61 +40,42 @@ struct SignUpView: View {
                 
                 Spacer().frame(height: 50)
                 
-                HStack{
-                    VStack{
-                        
-                        HStack{
-                            Text("Name:")
-                                .frame(height: 40)
-                            Spacer()
-                        }
-                        HStack{
-                            Text("Username:")
-                                .frame(height: 40)
-                            Spacer()
-                        }
-                        HStack{
-                            Text("Password:")
-                                .frame(height: 40)
-                            Spacer()
-                        }
-                        HStack{
-                            Text("Email:")
-                                .frame(height: 40)
-                            Spacer()
-                        }
-                    }
-                    .frame(width: 100)
+                VStack(spacing: 0){
+                    CustomTextField(
+                        placeholder: Text("Name"),
+                        text: self.$name)
+                        .frame(height: 40)
+                    Rectangle()
+                        .frame(height: 2)
+                        .foregroundColor(.white)
+                        .opacity(0.2)
                     
-                    VStack(spacing: 0){
-                        TextField("John Smith", text: $name)
-                            .frame(height: 40)
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundColor(.white)
-                            .opacity(0.2)
-                        
-                        TextField("Username", text: $userName)
-                            .frame(height: 40)
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundColor(.white)
-                            .opacity(0.2)
-                        
-                        TextField("Password", text: $password)
-                            .frame(height: 40)
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundColor(.white)
-                            .opacity(0.2)
-                        
-                        TextField("Email", text: $email)
-                            .frame(height: 40)
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundColor(.white)
-                            .opacity(0.2)
-                    }
+                    CustomTextField(
+                        placeholder: Text("Username"),
+                        text: self.$userName)
+                        .frame(height: 40)
+                    Rectangle()
+                        .frame(height: 2)
+                        .foregroundColor(.white)
+                        .opacity(0.2)
+                    
+                    CustomSecureField(
+                        placeholder: Text("Password"),
+                        text: self.$password)
+                        .frame(height: 40)
+                    Rectangle()
+                        .frame(height: 2)
+                        .foregroundColor(.white)
+                        .opacity(0.2)
+                    
+                    CustomTextField(
+                        placeholder: Text("Email"),
+                        text: self.$email)
+                        .frame(height: 40)
+                    Rectangle()
+                        .frame(height: 2)
+                        .foregroundColor(.white)
+                        .opacity(0.2)
                 }
                 
                 Spacer().frame(height: 30)
@@ -121,16 +102,18 @@ struct SignUpView: View {
                             alertView.present(duration: 3)
                             print("no error")
                         }
-                        
                     }
-                    
-                    print("here")
+                    print("done")
                 }) {
                     HStack{
                         Text("Sign up")
                         Image(systemName: "checkmark")
-                    }
+                    }.foregroundColor(vdarkBlue)
+                    .frame(height: 50)
+                    .frame(width: UIScreen.main.bounds.size.width / 3)
                 }
+                .background(lightBlue)
+                .cornerRadius(25)
                 
                 Spacer().frame(height: 200)
             }

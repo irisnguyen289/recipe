@@ -36,13 +36,46 @@ enum timeUnit: String {
     case day = "days"
 }
 
-struct User: Identifiable{
+class User: NSObject, Identifiable, NSCoding {
     var id = UUID()
+    var establishedID: String
     
     var username: String
     var password: String
     var name: String
     var email: String
+    
+    init(username: String, password: String, name: String, email: String, _ idString: String?){
+        self.username = username
+        self.password = password
+        self.name = name
+        self.email = email
+        
+        if let idString = idString {
+            self.establishedID = idString
+        }
+        else{
+            self.establishedID = id.uuidString
+        }
+    }
+    
+    required init(coder aDecoder: NSCoder) {
+        id = aDecoder.decodeObject(forKey: "id") as? UUID ?? UUID()
+        establishedID = aDecoder.decodeObject(forKey: "establishedID") as? String ?? ""
+        username = aDecoder.decodeObject(forKey: "username") as? String ?? ""
+        password = aDecoder.decodeObject(forKey: "password") as? String ?? ""
+        name = aDecoder.decodeObject(forKey: "name") as? String ?? ""
+        email = aDecoder.decodeObject(forKey: "email") as? String ?? ""
+    }
+    
+    func encode(with aCoder: NSCoder) {
+        aCoder.encode(id, forKey: "id")
+        aCoder.encode(establishedID, forKey: "establishedID")
+        aCoder.encode(username, forKey: "username")
+        aCoder.encode(password, forKey: "password")
+        aCoder.encode(name, forKey: "name")
+        aCoder.encode(email, forKey: "email")
+    }
 }
 
 struct RecipePost: Identifiable{
@@ -112,7 +145,7 @@ struct CustomSecureField: View {
 }
 
 class GlobalEnvironment: ObservableObject{
-    @Published var currentUser: User = User.init(username: "", password: "", name: "", email: "")
+    @Published var currentUser: User = User.init(username: "", password: "", name: "", email: "", nil)
     
     // Global - Visual Items
     // var tabBar_Height: CGFloat = 48

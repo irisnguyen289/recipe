@@ -78,11 +78,12 @@ struct LoginView: View {
                                             // Verification
                                             if document.data()["password"] as? String ?? "" == self.password {
                                                 // Set user
-                                                env.currentUser = User(
+                                                env.currentUser = User.init(
                                                     username: document.data()["username"] as? String ?? "",
                                                     password: document.data()["password"] as? String ?? "",
                                                     name: document.data()["name"] as? String ?? "",
-                                                    email: document.data()["email"] as? String ?? ""
+                                                    email: document.data()["email"] as? String ?? "",
+                                                    document.documentID
                                                 )
                                                 
                                                 // Save user to maintain log in session
@@ -116,7 +117,19 @@ struct LoginView: View {
                     }.onAppear(){
                         if let lastLogin_User = UserDefaults.standard.object(forKey: "lastLogin_User") as? Data {
                             do{
-                                if (try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(lastLogin_User) as? [String: Any?]) != nil {
+                                if let lastSession = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(lastLogin_User) as? [String: Any?] {
+                                    if let savedUser = lastSession["last_login_user"] as? User {
+                                        print("logged in successfully with saved user")
+                                        print(savedUser)
+                                        
+                                        self.env.currentUser = savedUser
+                                    }
+                                    else {
+                                        print("couldn't unwrap user")
+                                        print(lastSession)
+                                        print(lastSession["last_login_user"])
+                                    }
+                                    
                                     self.isLoggedIn = true
                                     print("auto login to last session successfully")
                                 }
