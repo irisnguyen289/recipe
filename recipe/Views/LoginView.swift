@@ -10,79 +10,144 @@ import Firebase
 import SPAlert
 
 struct LoginView: View {
+    @ObservedObject var env = GlobalEnvironment()
+    
     @State private var signup_visible = false
     
     @State private var username: String = ""
     @State private var password: String = ""
     
+    @State private var isLoggedIn = false
+    
     var body: some View {
-        ZStack{
-            LinearGradient(gradient: Gradient(colors: [darkBlue, vdarkBlue]), startPoint: .top, endPoint: .bottom)
-                .edgesIgnoringSafeArea(.all)
-        VStack(spacing: 0) {
-            Image("fadeCarrousel_2")
-                .resizable()
-                .scaledToFill()
-                .clipped()
-                .frame(height: 300)
-                .frame(minWidth: 0, maxWidth: .infinity)
-                .background(Color.clear)
-                .edgesIgnoringSafeArea(.top)
-            
-            TextField("Username", text: $username)
-                .padding()
-                .background(Color.clear)
-            TextField("Password", text: $password)
-                .padding()
-                .background(Color.clear)
-            
-            Spacer()
-                .frame(height: 20)
-            
-            Button(action: {
-                Firestore.firestore().collection("users").whereField("username", isEqualTo: self.username).getDocuments(){ (querySnapshot, err) in
-                    if let err = err {
-                        print("Error getting documents: \(err)")
-                    } else{
-                        if querySnapshot!.documents.count <= 0 {
-                            let alertView = SPAlertView(title: "No user found", message: "Invalid username", preset: SPAlertIconPreset.error)
-                            
-                            alertView.present(duration: 3)
-                        } else{
-                            let alertView = SPAlertView(title: "\(querySnapshot!.documents.count) user(s) found", message: "Valid username", preset: SPAlertIconPreset.done)
-                            
-                            alertView.present(duration: 3)
-                        }
+        NavigationView{
+            ZStack{
+                LinearGradient(gradient: Gradient(colors: [darkBlue, vdarkBlue]), startPoint: .top, endPoint: .bottom)
+                    .edgesIgnoringSafeArea(.all)
+                
+                VStack(spacing: 0) {
+                    Image("recipeat_slogan")
+                        .resizable()
+                        .scaledToFit()
+                        .clipped()
+                        .frame(width: UIScreen.main.bounds.size.width / 2)
+                        .background(Color.clear)
+                    
+                    VStack{
+                        CustomTextField(
+                            placeholder: Text("Username").foregroundColor(.white),
+                            text: $username)
+                            .foregroundColor(.white)
+                            .overlay(
+                                Capsule()
+                                    .stroke(lineWidth: 2))
+                            .padding()
                         
-                        for document in querySnapshot!.documents{
-                            print("\(document.documentID) => \(document.data())")
+                        CustomSecureField(
+                            placeholder: Text("Password").foregroundColor(.white),
+                            text: $password)
+                            .overlay(
+                                Capsule()
+                                    .stroke(lineWidth: 2))
+                            .padding()
+                    }
+                    .foregroundColor(.white)
+                    
+                    NavigationLink(destination: TabbedRootView(), isActive: $isLoggedIn) {
+                        Button(action: {
+                            Firestore.firestore().collection("users").whereField("username", isEqualTo: self.username).getDocuments(){ (querySnapshot, err) in
+                                if let err = err {
+                                    print("Error getting documents: \(err)")
+                                } else{
+                                    if querySnapshot!.documents.count <= 0 {
+                                        let alertView = SPAlertView(title: "Invalid username", message: nil, preset: SPAlertIconPreset.error)
+                                        alertView.present(duration: 3)
+                                        
+                                        print("No user found")
+                                    }
+                                    else if querySnapshot!.documents.count > 1 {
+                                        let alertView = SPAlertView(title: "Something went wrong", message: nil, preset: SPAlertIconPreset.error)
+                                        alertView.present(duration: 3)
+                                        
+                                        print("More than one user found")
+                                    }
+                                    else {
+                                        for document in querySnapshot!.documents{
+                                            print("\(document.documentID) => \(document.data())")
+                                            
+                                            // Verification
+                                            if document.data()["password"] as? String ?? "" == self.password {
+                                                // Set user
+                                                env.currentUser = User(
+                                                    username: document.data()["username"] as? String ?? "",
+                                                    password: document.data()["password"] as? String ?? "",
+                                                    name: document.data()["name"] as? String ?? "",
+                                                    email: document.data()["email"] as? String ?? ""
+                                                )
+                                                
+                                                // Save user to maintain log in session
+                                                env.save_UserDefaults()
+                                                
+                                                // Change to HomeView
+                                                self.isLoggedIn = true
+                                            }
+                                            else{
+                                                let alertView = SPAlertView(title: "Incorrect password", message: nil, preset: SPAlertIconPreset.error)
+                                                alertView.present(duration: 3)
+                                            }
+                                            
+                                            break
+                                        }
+                                    }
+                                }
+                            }
+                        }) {
+                            HStack{
+                                Text("Log In")
+                                Image(systemName: "arrow.right")
+                            }
+                            .frame(height: 50)
+                            .frame(width: UIScreen.main.bounds.size.width / 3)
+                            .foregroundColor(.white)
+                        }
+                        .background(lightBlue)
+                        .cornerRadius(25)
+                        .padding()
+                    }.onAppear(){
+                        if let lastLogin_User = UserDefaults.standard.object(forKey: "lastLogin_User") as? Data {
+                            do{
+                                if (try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(lastLogin_User) as? [String: Any?]) != nil {
+                                    self.isLoggedIn = true
+                                    print("auto login to last session successfully")
+                                }
+                            }
+                            catch{
+                                print("couldn't read data lastLogin_User")
+                            }
+                        }
+                        else{
+                            print("couldn't read data lastLogin_User")
                         }
                     }
+                    
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        self.signup_visible.toggle()
+                    }) {
+                        Text("Sign Up").padding()
+                    }
+                    .foregroundColor(Color.init(red: 0.85, green: 0.85, blue: 0.85))
+                    .sheet(isPresented: $signup_visible, content: {SignUpView()})
+                    .overlay(
+                        Capsule()
+                            .stroke(lineWidth: 2)
+                            .foregroundColor(lightBlue))
                 }
-            }) {
-                HStack{
-                    Text("Log In")
-                    Image(systemName: "arrow.right")
-                }
-                .padding()
-            }
-            .background(Color.init(red: 0.85, green: 0.85, blue: 0.85))
-            .cornerRadius(10)
-            
-            Spacer()
-            Button(action: {
-                self.signup_visible.toggle()
-            }) {
-                Text("Sign Up").padding()
-            }
-            .background(Color.clear)
-            .foregroundColor(Color.init(red: 0.85, green: 0.85, blue: 0.85))
-            .sheet(isPresented: $signup_visible, content: {SignUpView()})
-            .cornerRadius(10)
-            
-            Spacer()
-        }
-        .background(Color.clear)
+                .background(Color.clear)
+            }.navigationBarTitle("")
+            .navigationBarHidden(true)
         }
     }
 }
