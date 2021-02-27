@@ -25,6 +25,7 @@
 		0496F93025E647B1000AA9E9 /* HalfModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0496F92F25E647B1000AA9E9 /* HalfModalView.swift */; };
 		04A058BC25E516D800E02AF8 /* helperFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A058BB25E516D800E02AF8 /* helperFuncs.swift */; };
 		04A058CC25E51FF700E02AF8 /* NewPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A058CB25E51FF700E02AF8 /* NewPostView.swift */; };
+		04AC37B425E9AF3D00E32619 /* KeyboardAwareModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AC37B325E9AF3D00E32619 /* KeyboardAwareModifier.swift */; };
 		04C5BDD325E62AC000B7D617 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C5BDD225E62AC000B7D617 /* ImagePicker.swift */; };
 		B953C97AA4D763171E86B4D3 /* Pods_recipeTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 403A3323372E91F7759AE708 /* Pods_recipeTests.framework */; };
 		E165A5A0A935BB0C3AF44EE7 /* Pods_recipe_recipeUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8B977F175B1C6DB6E24DB86 /* Pods_recipe_recipeUITests.framework */; };
@@ -73,6 +74,7 @@
 		0496F92F25E647B1000AA9E9 /* HalfModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HalfModalView.swift; sourceTree = "<group>"; };
 		04A058BB25E516D800E02AF8 /* helperFuncs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = helperFuncs.swift; sourceTree = "<group>"; };
 		04A058CB25E51FF700E02AF8 /* NewPostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPostView.swift; sourceTree = "<group>"; };
+		04AC37B325E9AF3D00E32619 /* KeyboardAwareModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardAwareModifier.swift; sourceTree = "<group>"; };
 		04C5BDD225E62AC000B7D617 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		33C9847274209ABC443EE92C /* Pods-recipe-recipeUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-recipe-recipeUITests.release.xcconfig"; path = "Target Support Files/Pods-recipe-recipeUITests/Pods-recipe-recipeUITests.release.xcconfig"; sourceTree = "<group>"; };
 		403A3323372E91F7759AE708 /* Pods_recipeTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_recipeTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -141,8 +143,6 @@
 				04066C8725D3D94F00FA5E64 /* recipeApp.swift */,
 				0493510125DA4C7500B9CA58 /* Views */,
 				04066C8B25D3D95000FA5E64 /* Assets.xcassets */,
-				04066CBD25D3D9D200FA5E64 /* Structure_Enums_Classes.swift */,
-				04A058BB25E516D800E02AF8 /* helperFuncs.swift */,
 				0493512725DB64BE00B9CA58 /* GoogleService-Info.plist */,
 				04066C9025D3D95000FA5E64 /* Info.plist */,
 				04066C8D25D3D95000FA5E64 /* Preview Content */,
@@ -183,6 +183,9 @@
 				0493511725DB0BA700B9CA58 /* LoginView.swift */,
 				04C5BDD225E62AC000B7D617 /* ImagePicker.swift */,
 				0493511F25DB1AFE00B9CA58 /* SignUpView.swift */,
+				04066CBD25D3D9D200FA5E64 /* Structure_Enums_Classes.swift */,
+				04A058BB25E516D800E02AF8 /* helperFuncs.swift */,
+				04AC37B225E9AF1900E32619 /* ViewModifiers */,
 				0493510625DA514B00B9CA58 /* ReusableViews */,
 				0493510225DA4C8C00B9CA58 /* Tabs */,
 			);
@@ -208,6 +211,14 @@
 				0496F92F25E647B1000AA9E9 /* HalfModalView.swift */,
 			);
 			path = ReusableViews;
+			sourceTree = "<group>";
+		};
+		04AC37B225E9AF1900E32619 /* ViewModifiers */ = {
+			isa = PBXGroup;
+			children = (
+				04AC37B325E9AF3D00E32619 /* KeyboardAwareModifier.swift */,
+			);
+			path = ViewModifiers;
 			sourceTree = "<group>";
 		};
 		777C23DD7F7ACC05D6E7BF29 /* Pods */ = {
@@ -472,6 +483,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				04C5BDD325E62AC000B7D617 /* ImagePicker.swift in Sources */,
+				04AC37B425E9AF3D00E32619 /* KeyboardAwareModifier.swift in Sources */,
 				0493510825DA516C00B9CA58 /* PostView.swift in Sources */,
 				049350FD25DA4C3500B9CA58 /* MeView.swift in Sources */,
 				0493511025DA556E00B9CA58 /* StoryCircleView.swift in Sources */,

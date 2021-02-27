@@ -13,7 +13,7 @@ var lightBlue = Color.init(red: 91/255, green: 152/255, blue: 198/255)
 var darkBlue = Color.init(red: 47/255, green: 75/255, blue: 135/255)
 var vdarkBlue = Color.init(red: 2/255, green: 51/255, blue: 92/255)
 
-enum IngredientUnit: String {
+enum IngredientUnit: String, CaseIterable {
     case cup = "cup"
     case tablespoon = "tablespoon"
     case teaspoon = "teaspoon"
@@ -29,7 +29,7 @@ enum IngredientUnit: String {
     case whole = "whole"
 }
 
-enum timeUnit: String {
+enum timeUnit: String, CaseIterable {
     case sec = "seconds"
     case min = "mins"
     case hr = "hours"
@@ -94,6 +94,17 @@ struct RecipePost: Identifiable{
     
     var cookTime: Int = 10
     var cookTimeUnit: timeUnit = .min
+    
+    var dict: [String: Any] {
+        return [
+            "id": id.uuidString,
+            "postingUser": postingUser,
+            "description": description,
+            "numberOfLike": numberOfLike,
+            "steps": steps.formatForFirebase(),
+            "ingredients": ingredients.formatForFirebase()
+        ]
+    }
 }
 
 struct Ingredient: Identifiable{
@@ -103,6 +114,16 @@ struct Ingredient: Identifiable{
     var amount: Double
     var amountUnit: IngredientUnit
     var order: Int
+    
+    var dict: [String: Any] {
+        return [
+            "id": id.uuidString,
+            "name": name,
+            "amount": amount,
+            "amountUnit": amountUnit.rawValue,
+            "order": order
+        ]
+    }
 }
 
 struct Step: Identifiable{
@@ -110,6 +131,14 @@ struct Step: Identifiable{
     
     var description: String
     var order: Int
+    
+    var dict: [String: Any] {
+        return [
+            "id": id.uuidString,
+            "description": description,
+            "order": order
+        ]
+    }
 }
 
 struct CustomTextField: View {
