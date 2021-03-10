@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import Firebase
+import FirebaseStorage
 
 extension GlobalEnvironment{
     func save_UserDefaults(){
@@ -111,6 +112,24 @@ func firebaseSubmit(docRef_string: String, data: [String: Any], completion: @esc
                 print("data uploaded = \(data)")
             }
         }
+    }
+}
+
+func uploadImage(_ ref: String, image: UIImage, completion: @escaping (Any) -> Void, showDetails: Bool = false) {
+    if let imageData = image.jpegData(compressionQuality: 1) {
+        let storage = Storage.storage()
+        storage.reference().child(ref).putData(imageData, metadata: nil) { (storageMetadata, error) in
+            if let error = error {
+                print("an error has occur - \(error.localizedDescription)")
+                completion(error)
+            }
+            else {
+                print("image uploaded successfully")
+            }
+        }
+    }
+    else {
+        print("could not unwrap image as data")
     }
 }
 

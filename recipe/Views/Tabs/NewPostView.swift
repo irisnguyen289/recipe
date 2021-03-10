@@ -51,12 +51,19 @@ struct NewPostView: View {
                                 .background(Color.black)
                         }
                         else {
-                            Image(systemName: "camera")
-                                .resizable()
-                                .scaledToFit()
-                                .padding(130)
-                                .frame(width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.width)
-                                .background(Color.init(red: 1, green: 1, blue: 1))
+                            
+                            Button(action: {
+                                self.showSheet.toggle()
+                            }) {
+                                //Icons made by <a href="https://www.flaticon.com/authors/good-ware" title="Good Ware">Good Ware</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+                                Image("pasta_icon")
+                                    .renderingMode(.original)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .padding(100)
+                                    .frame(width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.width)
+                                    .background(Color.init(red: 1, green: 1, blue: 1))
+                            }
                         }
                     }
                     
@@ -87,7 +94,7 @@ struct NewPostView: View {
                                     },
                                     .default(Text("Photo Library")) {
                                         self.showImagePicker = true
-                                        self.sourceType = .photoLibrary
+                                        self.sourceType = .savedPhotosAlbum
                                     },
                                     .cancel()
                                 ])
@@ -96,129 +103,175 @@ struct NewPostView: View {
                         Spacer()
                     }
                 }
-                HStack{
-                    // Ingredients view
-                    VStack(spacing: 0) {
-                        Text("Ingredients")
-                            .font(.headline)
-                            .padding()
-                        
-                        ScrollView{
-                            HStack(spacing: 0) {
-                                VStack(alignment: .leading) {
-                                    if ingredients.count <= 0 {
-                                        Text("No ingredient")
-                                    }
-                                    
-                                    ForEach(ingredients, id: \.id) {ingr in
-                                        Text("\(ingr.amount.stringWithoutZeroFraction) \(ingr.amountUnit.rawValue) \(ingr.name)")
-                                    }
-                                }.padding()
-                                
-                                Spacer()
-                            }
-                        }.frame(width: UIScreen.main.bounds.size.width / 2)
-                        .clipped()
-                        
-                        Button(action: {
-                            self.halfModal_update(
-                                title: "ADD NEW INGREDIENT",
-                                placeholder: "E.g.: Egg",
-                                itemType: newStep_Ingr.step,
-                                height: self.halfModal_height)
+                
+                VStack{
+                    HStack(spacing: 0) {
+                        // Ingredients view
+                        VStack(spacing: 0) {
+                            Text("INGREDIENTS")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding(10)
+                                .background(vdarkBlue)
+                                .foregroundColor(.white)
                             
-                            self.newItem_type = .ingr
-                            self.halfModalShown.toggle()
-                        }){
-                            Text("Add an ingredient").padding()
-                        }
-                    }.background(Color.clear)
+                            ScrollView{
+                                HStack(spacing: 0) {
+                                    VStack(alignment: .leading) {
+                                        if ingredients.count <= 0 {
+                                            Text("No ingredient")
+                                        }
+                                        
+                                        ForEach(ingredients, id: \.id) {ingr in
+                                            Text("\(ingr.amount.stringWithoutZeroFraction) \(ingr.amountUnit.rawValue) \(ingr.name)")
+                                        }
+                                    }.padding()
+                                    
+                                    Spacer()
+                                }
+                            }.frame(width: UIScreen.main.bounds.size.width / 2)
+                            .clipped()
+                            
+                            Button(action: {
+                                self.halfModal_update(
+                                    title: "ADD NEW INGREDIENT",
+                                    placeholder: "E.g.: Egg",
+                                    itemType: newStep_Ingr.step,
+                                    height: self.halfModal_height)
+                                
+                                self.newItem_type = .ingr
+                                self.halfModalShown.toggle()
+                            }){
+                                Text("Add an ingredient")
+                                    .padding()
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 16, weight: .bold))
+                                    .frame(height: 30)
+                                    .background(medblue)
+                                    .cornerRadius(15)
+                            }
+                        }.background(Color.clear)
+                        
+                        Rectangle()
+                            .frame(width: 1, height: 300, alignment: .bottom)
+                            .background(Color.gray)
+                        
+                        // Steps view
+                        VStack(spacing: 0) {
+                            Text("STEPS")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding(10)
+                                .background(vdarkBlue)
+                                .foregroundColor(.white)
+                            
+                            ScrollView{
+                                HStack(spacing: 0) {
+                                    VStack(alignment: .leading) {
+                                        if steps.count <= 0 {
+                                            Text("No instruction")
+                                        }
+                                        
+                                        ForEach(steps, id: \.id) {step in
+                                            Text(step.description)
+                                        }
+                                    }.padding()
+                                    
+                                    Spacer()
+                                }
+                            }.frame(width: UIScreen.main.bounds.size.width / 2)
+                            .clipped()
+                            
+                            Button(action: {
+                                self.halfModal_update(
+                                    title: "ADD NEW STEP",
+                                    placeholder: "E.g.: Add sugar",
+                                    itemType: newStep_Ingr.step,
+                                    height: self.halfModal_height)
+                                
+                                self.newItem_type = .step
+                                self.halfModalShown.toggle()
+                            }){
+                                Text("Add a step")
+                                    .padding()
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 16,weight: .bold))
+                                    .frame(height: 30)
+                                    .background(medblue)
+                                    .cornerRadius(15)
+                            }
+                        }.background(Color.clear)
+                    }
                     
-                    // Steps view
-                    VStack(spacing: 0) {
-                        Text("Steps")
-                            .font(.headline)
-                            .padding()
-                        
-                        ScrollView{
-                            HStack(spacing: 0) {
-                                VStack(alignment: .leading) {
-                                    if steps.count <= 0 {
-                                        Text("No instruction")
-                                    }
-                                    
-                                    ForEach(steps, id: \.id) {step in
-                                        Text(step.description)
-                                    }
-                                }.padding()
-                                
-                                Spacer()
-                            }
-                        }.frame(width: UIScreen.main.bounds.size.width / 2)
-                        .clipped()
-                        
-                        Button(action: {
-                            self.halfModal_update(
-                                title: "ADD NEW STEP",
-                                placeholder: "E.g.: Add sugar",
-                                itemType: newStep_Ingr.step,
-                                height: self.halfModal_height)
+                    Button(action: {
+                        if let postImage = self.image {
+                            let post = RecipePost(
+                                postingUser: self.env.currentUser.establishedID,
+                                description: "",
+                                numberOfLike: 0,
+                                image: Image(uiImage: postImage),
+                                steps: self.steps,
+                                ingredients: self.ingredients,
+                                prepTime: 1, prepTimeUnit: .min, cookTime: 1, cookTimeUnit: .min)
                             
-                            self.newItem_type = .step
-                            self.halfModalShown.toggle()
-                        }){
-                            Text("Add a step").padding()
+                            print(post.dict)
+                            
+                            firebaseSubmit(docRef_string: "recipe/\(post.id)", data: post.dict, completion: { _ in })
+                            
+                            uploadImage("recipe/\(post.id)_1", image: postImage, completion: { _ in })
                         }
-                    }.background(Color.clear)
+                        else {
+                            let alertView = SPAlertView(title: "Add a photo", message: "You cannot submit a post without a photo", preset: SPAlertIconPreset.error)
+                            alertView.present(duration: 3)
+                        }
+                    }) {
+                        Text("Post")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(20)
+                            .frame(height: 48)
+                            .frame(maxWidth: .infinity)
+                            .background(darkBlue)
+                            .shadow(radius: 3)
+                    }
+                    
+                    Spacer().frame(height: 65)
                 }
                 .background(Color.init(red: 0.95, green: 0.95, blue: 0.95))
-                
-                Button(action: {
-                    if let postImage = self.image {
-                    let post = RecipePost(
-                        postingUser: self.env.currentUser.establishedID,
-                        description: "",
-                        numberOfLike: 0,
-                        image: Image(uiImage: postImage),
-                        steps: self.steps,
-                        ingredients: self.ingredients,
-                        prepTime: 1, prepTimeUnit: .min, cookTime: 1, cookTimeUnit: .min)
-                        
-                        print(post.dict)
-                    }
-                    else {
-                        let alertView = SPAlertView(title: "Add a photo", message: "You cannot submit a post without a photo", preset: SPAlertIconPreset.error)
-                        alertView.present(duration: 3)
-                    }
-                }) {
-                    Text("Post")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding(20)
-                        .frame(height: 48)
-                        .background(darkBlue)
-                        .cornerRadius(24)
-                        .padding(10)
-                }
-                
-                Spacer().frame(height: 65)
             }
             .navigationBarTitle("")
             .navigationBarHidden(true)
             .sheet(isPresented: $showImagePicker) {
-                VStack{
+                VStack(spacing: 0) {
                     ScrollView(.horizontal) {
                         HStack{
                             ForEach(0..<10) {_ in
                                 Rectangle()
                                     .frame(width: 200, height: 200, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
                                     .background(Color.blue)
+                                    .shadow(radius: 3)
                             }
                         }.padding()
                     }.frame(height: 220)
-                    .background((Color.pink))
+                    .background((Color.white))
+                    
+                    HStack{
+                        Button(action: {self.showImagePicker.toggle()}){
+                            Text("DONE")
+                                .padding()
+                                .foregroundColor(.white)
+                                .font(.system(size: 16, weight: .bold))
+                                .frame(height: 30)
+                                .background(medblue)
+                                .cornerRadius(15)
+                        }
+                    }.frame(height: 57)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.white)
+                    .zIndex(1)
                     
                     imagePicker(image: self.$image, sourceType: self.sourceType)
+                        .offset(y:-57)
                     
                 }
             }
