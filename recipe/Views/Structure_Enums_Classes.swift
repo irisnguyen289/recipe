@@ -80,6 +80,11 @@ class User: NSObject, Identifiable, NSCoding {
     }
 }
 
+struct Identifiable_UIImage: Identifiable{
+    var id = UUID()
+    var image: UIImage
+}
+
 struct RecipePost: Identifiable{
     var id = UUID()
     
