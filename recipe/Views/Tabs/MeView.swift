@@ -8,9 +8,61 @@
 import SwiftUI
 
 struct MeView: View {
+    @EnvironmentObject var env: GlobalEnvironment
+    
     var body: some View {
         ZStack {
-            Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+            VStack{
+                HStack{
+                    VStack{
+                        Text("\(self.env.currentUser.name)")
+                        Text("\(self.env.currentUser.username) ||  \(self.env.currentUser.publishedRecipes.count)")
+                    }.padding()
+                    
+                    Spacer()
+                    
+                    Image(systemName: "timelapse")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 90, height: 90)
+                        .background(Color.red)
+                        .cornerRadius(45)
+                        .padding()
+                }
+                .background(Color.yellow)
+                
+                HStack{
+                    Spacer()
+                    Button(action: {}){
+                        Text("Follow")
+                            .padding(20)
+                    }
+                    .foregroundColor(.white)
+                    .background(darkBlue)
+                    .cornerRadius(10)
+                    
+                    Spacer()
+                    
+                    Button(action: {}){
+                        Text("Message")
+                            .padding(20)
+                    }
+                    .foregroundColor(.black)
+                    .background(Color.green)
+                    .cornerRadius(10)
+                    
+                    Spacer()
+                }
+                
+                ScrollView{
+                    VStack(spacing: 0) {
+                        ForEach(self.env.currentUser.publishedRecipes, id: \.self) { postId in
+                            Me_PostView(postId: postId)
+                        }
+                    }
+                }
+                .background(Color.red)
+            }
         }
         .navigationBarTitle("")
         .navigationBarHidden(true)

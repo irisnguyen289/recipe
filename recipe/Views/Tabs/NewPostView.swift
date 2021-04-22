@@ -8,17 +8,16 @@
 import SwiftUI
 import SPAlert
 
-
 enum newStep_Ingr{
     case step, ingr
 }
-
 
 struct NewPostView: View {
     @EnvironmentObject var env: GlobalEnvironment
     
     @State private var images: [Identifiable_UIImage] = []
     
+    @State private var showPreviewSheet = false
     @State private var showSheet = false
     @State private var showImagePicker = false
     @State private var sourceType: UIImagePickerController.SourceType = .camera
@@ -32,11 +31,20 @@ struct NewPostView: View {
     
     @State var newItem_type: newStep_Ingr = .step
     @State var ingredientUnit_index = 0
+        
+    @State var posted = false
+    @State var updatedUserPost = false
+    @State var uploadedImages = false
     
-    
-    // Sample data
-    @State var steps: [Step] = []
-    @State var ingredients: [Ingredient] = []
+    @State var recipe = RecipePost.init(
+        postingUser: "",
+        description: "",
+        numberOfLike: 0,
+        images: [],
+        title: "",
+        steps: [],
+        ingredients: [],
+        prepTime: 1, prepTimeUnit: .min, cookTime: 1, cookTimeUnit: .min)
     
     var body: some View {
         ZStack{
@@ -46,7 +54,7 @@ struct NewPostView: View {
                 ZStack{
                     // Chosen image
                     HStack{
-                        if images.count > 0 {
+                        if self.images.count > 0 {
                             ScrollView(.horizontal) {
                                 HStack(spacing: 0) {
                                     ForEach(self.images, id: \.id) {i in
@@ -95,7 +103,7 @@ struct NewPostView: View {
                                 .shadow(radius: 4)
                                 .opacity(0.7)
                                 .padding()
-                            }.actionSheet(isPresented: $showSheet){
+                            }.actionSheet(isPresented: self.$showSheet){
                                 ActionSheet(title: Text("Add a picture to your post"), message: nil, buttons: [
                                     .default(Text("Camera")) {
                                         self.showImagePicker = true
@@ -110,6 +118,52 @@ struct NewPostView: View {
                             }
                         }
                         Spacer()
+                    }
+                }
+                .sheet(isPresented: self.$showImagePicker) {
+                    VStack(spacing: 0) {
+                        if self.images.count > 0 {
+                            ScrollView(.horizontal) {
+                                HStack{
+                                    ForEach(self.images, id: \.id) {i in
+                                        Image(uiImage: i.image)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 200, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                                            .background(Color.black)
+                                            .shadow(radius: 3)
+                                    }
+                                }.padding()
+                            }.frame(height: 220)
+                            .background((Color.white))
+                        }
+                        else {
+                            HStack{
+                                Spacer()
+                                Text("Choose image(s)")
+                                Spacer()
+                            }.frame(height: 220)
+                            .background((Color.white))
+                        }
+                        
+                        HStack{
+                            Button(action: {self.showImagePicker.toggle()}){
+                                Text("DONE - \(self.images.count) images")
+                                    .padding()
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 16, weight: .bold))
+                                    .frame(height: 30)
+                                    .background(medblue)
+                                    .cornerRadius(15)
+                            }
+                        }.frame(height: 57)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.white)
+                        .zIndex(1)
+                        
+                        imagePicker(images: self.$images, sourceType: self.sourceType)
+                            .offset(y:-57)
+                        
                     }
                 }
                 
@@ -128,11 +182,11 @@ struct NewPostView: View {
                             ScrollView{
                                 HStack(spacing: 0) {
                                     VStack(alignment: .leading) {
-                                        if ingredients.count <= 0 {
+                                        if self.recipe.ingredients.count <= 0 {
                                             Text("No ingredient")
                                         }
                                         
-                                        ForEach(ingredients, id: \.id) {ingr in
+                                        ForEach(self.recipe.ingredients, id: \.id) {ingr in
                                             Text("\(ingr.amount.stringWithoutZeroFraction) \(ingr.amountUnit.rawValue) \(ingr.name)")
                                                 .padding(8)
                                                 .background(Color.init(red: 0.85, green: 0.85, blue: 0.85))
@@ -166,10 +220,6 @@ struct NewPostView: View {
                             }
                         }.background(Color.clear)
                         
-                        Rectangle()
-                            .frame(width: 1, height: 300, alignment: .bottom)
-                            .background(Color.gray)
-                        
                         // Steps view
                         VStack(spacing: 0) {
                             Text("STEPS")
@@ -183,12 +233,12 @@ struct NewPostView: View {
                             ScrollView{
                                 HStack(spacing: 0) {
                                     VStack(alignment: .leading) {
-                                        if steps.count <= 0 {
+                                        if self.recipe.steps.count <= 0 {
                                             Text("No instruction")
                                         }
                                         
-                                        ForEach(steps) {step in
-                                            Text("\(step.order + 1). " + step.description)
+                                        ForEach(self.recipe.steps, id: \.id) {step in
+                                            Text(step.description)
                                         }
                                     }.padding()
                                     
@@ -219,31 +269,12 @@ struct NewPostView: View {
                         }.background(Color.clear)
                     }
                     
-                    // Post button
+                    // Preview button
                     Button(action: {
-                        if self.images.count > 0  {
-                            let post = RecipePost(
-                                postingUser: self.env.currentUser.establishedID,
-                                description: "",
-                                numberOfLike: 0,
-                                image: Image(uiImage: self.images[0].image),
-                                steps: self.steps,
-                                ingredients: self.ingredients,
-                                prepTime: 1, prepTimeUnit: .min, cookTime: 1, cookTimeUnit: .min)
-                            
-                            print(post.dict)
-                            
-                            firebaseSubmit(docRef_string: "recipe/\(post.id)", data: post.dict, completion: { _ in })
-                            
-                            uploadImage("recipe/\(post.id)_1", image: self.images[0].image, completion: { _ in })
-                            
-                        }
-                        else {
-                            let alertView = SPAlertView(title: "Add a photo", message: "You cannot submit a post without a photo", preset: SPAlertIconPreset.error)
-                            alertView.present(duration: 3)
-                        }
+                        //self.submitRecipe()
+                        self.showPreviewSheet = true
                     }) {
-                        Text("Post")
+                        Text("Preview")
                             .font(.headline)
                             .foregroundColor(.white)
                             .padding(20)
@@ -252,6 +283,25 @@ struct NewPostView: View {
                             .background(darkBlue)
                             .shadow(radius: 3)
                     }
+                    .sheet(isPresented: self.$showPreviewSheet) {
+                        VStack{
+                            ModifyPost(recipe: self.$recipe, images: self.$images)
+                            
+                            // Preview button
+                            Button(action: {
+                                self.submitRecipe()
+                            }) {
+                                Text("POST")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                    .padding(20)
+                                    .frame(height: 48)
+                                    .frame(maxWidth: .infinity)
+                                    .background(darkBlue)
+                                    .shadow(radius: 3)
+                            }
+                        }
+                    }
                     
                     Spacer().frame(height: 65)
                 }
@@ -259,54 +309,8 @@ struct NewPostView: View {
             }
             .navigationBarTitle("")
             .navigationBarHidden(true)
-            .sheet(isPresented: $showImagePicker) {
-                VStack(spacing: 0) {
-                    if self.images.count > 0 {
-                        ScrollView(.horizontal) {
-                            HStack{
-                                ForEach(self.images, id: \.id) {i in
-                                    Image(uiImage: i.image)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(height: 200, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-                                        .background(Color.black)
-                                        .shadow(radius: 3)
-                                }
-                            }.padding()
-                        }.frame(height: 220)
-                        .background((Color.white))
-                    }
-                    else {
-                        HStack{
-                            Spacer()
-                            Text("Choose image(s)")
-                            Spacer()
-                        }.frame(height: 220)
-                        .background((Color.white))
-                    }
-                    
-                    HStack{
-                        Button(action: {self.showImagePicker.toggle()}){
-                            Text("DONE")
-                                .padding()
-                                .foregroundColor(.white)
-                                .font(.system(size: 16, weight: .bold))
-                                .frame(height: 30)
-                                .background(medblue)
-                                .cornerRadius(15)
-                        }
-                    }.frame(height: 57)
-                    .frame(maxWidth: .infinity)
-                    .background(Color.white)
-                    .zIndex(1)
-                    
-                    imagePicker(images: self.$images, sourceType: self.sourceType)
-                        .offset(y:-57)
-                    
-                }
-            }
             
-            HalfModalView(isShown: $halfModalShown, modalHeight: halfModal_height) {
+            HalfModalView(isShown: self.$halfModalShown, modalHeight: self.halfModal_height) {
                 VStack{
                     Spacer().frame(height: 15)
                     
@@ -374,41 +378,37 @@ struct NewPostView: View {
         self.halfModal_number = ""
         self.ingredientUnit_index = 0
         
-        halfModal_title = title
-        halfModal_placeholder = placeholder
-        newItem_type = itemType
-        halfModal_height = height
+        self.halfModal_title = title
+        self.halfModal_placeholder = placeholder
+        self.newItem_type = itemType
+        self.halfModal_height = height
     }
     
     func halfModal_hide(){
         UIApplication.shared.endEditting()
-        halfModalShown = false
+        self.halfModalShown = false
     }
     
     func addNewItem(){
-        if halfModal_text == "" {
+        if self.halfModal_text == "" {
             let alertView = SPAlertView(title: newItem_type == .step ? "Please add a step instruction": "Please add an ingredient", message: nil, preset: SPAlertIconPreset.error)
             alertView.present(duration: 3)
         }
         else {
-            if newItem_type == .step {
-                steps.append(
-                    Step(
-                        description: halfModal_text,
-                        order: steps.count))
+            if self.newItem_type == .step {
+                self.recipe.steps.append(Step(description: self.halfModal_text))
                 
                 self.halfModal_hide()
             }
-            else if newItem_type == .ingr {
-                if let number = convertStringToDouble(halfModal_number) {
-                    let unit = IngredientUnit.allCases[ingredientUnit_index]
+            else if self.newItem_type == .ingr {
+                if let number = convertStringToDouble(self.halfModal_number) {
+                    let unit = IngredientUnit.allCases[self.ingredientUnit_index]
                     
-                    ingredients.append(
+                    self.recipe.ingredients.append(
                         Ingredient(
-                            name: halfModal_text,
+                            name: self.halfModal_text,
                             amount: number,
-                            amountUnit: unit,
-                            order: ingredients.count))
+                            amountUnit: unit))
                     
                     self.halfModal_hide()
                 }
@@ -418,6 +418,72 @@ struct NewPostView: View {
                 }
             }
         }
+    }
+    
+    func clearView() {
+        self.images.removeAll()
+        self.recipe = RecipePost.init(
+            postingUser: "",
+            description: "",
+            numberOfLike: 0,
+            images: [],
+            title: "",
+            steps: [],
+            ingredients: [],
+            prepTime: 1, prepTimeUnit: .min, cookTime: 1, cookTimeUnit: .min)
+    }
+    
+    func submitRecipe(){
+            func showResult(){
+                if self.posted && self.updatedUserPost && self.uploadedImages {
+                    //self.env.localUpdate_currentUser()
+                    
+                    let alertView = SPAlertView(title: "Posted", message: "", preset: SPAlertIconPreset.done)
+                    alertView.present(duration: 3)
+                    
+                    self.clearView()
+                }
+            }
+            
+            if self.images.count > 0  {
+                self.recipe.postingUser = self.env.currentUser.establishedID
+                
+                print(self.recipe.dict)
+                
+                self.env.currentUser.publishedRecipes.append(self.recipe.id.uuidString)
+                
+                // upload images
+                var uploadCount = 0
+                for i in 0...self.images.count - 1 {
+                    let image = self.images[i].image
+                    let imageStr = "recipe/\(self.recipe.id)_\(i)"
+                    uploadImage(imageStr, image: image, completion: { _ in
+                        uploadCount += 1
+                        self.recipe.images.append(imageStr)
+                        
+                        if uploadCount == self.images.count{
+                            self.uploadedImages = true
+                            showResult()
+                        }
+                    })
+                }
+                
+                // submit post
+                firebaseSubmit(docRef_string: "recipe/\(self.recipe.id)", data: self.recipe.dict, completion: { _ in
+                    self.posted = true
+                    showResult()
+                })
+                
+                // update user's recipeID list
+                firebaseUpdate(docRef_string: "users/\(self.env.currentUser.establishedID)", dataToUpdate: ["publishedRecipes": self.env.currentUser.publishedRecipes], completion: { _ in
+                    self.updatedUserPost = true
+                    showResult()
+                })
+            }
+            else {
+                let alertView = SPAlertView(title: "Add a photo", message: "You cannot submit a post without a photo", preset: SPAlertIconPreset.error)
+                alertView.present(duration: 3)
+            }
     }
 }
 

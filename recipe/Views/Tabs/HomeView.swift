@@ -10,10 +10,10 @@ import SwiftUI
 struct HomeView: View {
     var homePost: [RecipePost] =
         [
-            RecipePost(postingUser: "1", description: "this is a long descriptions. this is a long descriptions. this is a long descriptions.", numberOfLike: 334, image: Image(systemName: "house"), steps: [], ingredients: []),
-            RecipePost(postingUser: "2", description: "adsfqi;ojg;agj adsfqi;ojg;agjadsfqi;ojg;agjadsfqi;ojg;agjadsfqi;ojg;agj adsfqi;ojg;agjadsfqi;ojg;agj ", numberOfLike: 123, image: Image(systemName: "house"), steps: [], ingredients: []),
-            RecipePost(postingUser: "3", description: "p;flkewquh p;flkewquh p;flkewquhp;flkewquh p;flkewquh  p;flkewquhp;flkewquh p;flkewquh", numberOfLike: 543, image: Image(systemName: "house"), steps: [], ingredients: []),
-            RecipePost(postingUser: "4", description: "ijpw;efangvijk ijpw;efangvijk ijpw;efangvijkijpw;efangvijk ijpw;efangvijk ijpw;efangvijk ijpw;efangvijk", numberOfLike: 236, image: Image(systemName: "house"), steps: [], ingredients: [])
+            RecipePost(postingUser: "1", description: "this is a long descriptions. this is a long descriptions. this is a long descriptions.", numberOfLike: 334, images: [], title: "", steps: [], ingredients: []),
+            RecipePost(postingUser: "2", description: "adsfqi;ojg;agj adsfqi;ojg;agjadsfqi;ojg;agjadsfqi;ojg;agjadsfqi;ojg;agj adsfqi;ojg;agjadsfqi;ojg;agj ", numberOfLike: 123, images: [], title: "", steps: [], ingredients: []),
+            RecipePost(postingUser: "3", description: "p;flkewquh p;flkewquh p;flkewquhp;flkewquh p;flkewquh  p;flkewquhp;flkewquh p;flkewquh", numberOfLike: 543, images: [], title: "", steps: [], ingredients: []),
+            RecipePost(postingUser: "4", description: "ijpw;efangvijk ijpw;efangvijk ijpw;efangvijkijpw;efangvijk ijpw;efangvijk ijpw;efangvijk ijpw;efangvijk", numberOfLike: 236, images: [], title: "", steps: [], ingredients: [])
         ]
     
     var body: some View {

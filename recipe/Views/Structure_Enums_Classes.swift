@@ -17,9 +17,9 @@ var vdarkBlue = Color.init(red: 33/255, green: 52/255, blue: 64/255)
 
 enum IngredientUnit: String, CaseIterable {
     case cup = "cup"
-    case tablespoon = "tablespoon"
-    case teaspoon = "teaspoon"
-    case pinch = "cupinchp"
+    case tbsp = "tablespoon"
+    case tsp = "teaspoon"
+    case pinch = "pinch"
     case dash = "dash"
     case mL = "mL"
     case L = "L"
@@ -47,11 +47,14 @@ class User: NSObject, Identifiable, NSCoding {
     var name: String
     var email: String
     
-    init(username: String, password: String, name: String, email: String, _ idString: String?){
+    var publishedRecipes: [String] = []
+    
+    init(username: String, password: String, name: String, email: String, publishedRecipes: [String], _ idString: String?){
         self.username = username
         self.password = password
         self.name = name
         self.email = email
+        self.publishedRecipes = publishedRecipes
         
         if let idString = idString {
             self.establishedID = idString
@@ -68,6 +71,7 @@ class User: NSObject, Identifiable, NSCoding {
         password = aDecoder.decodeObject(forKey: "password") as? String ?? ""
         name = aDecoder.decodeObject(forKey: "name") as? String ?? ""
         email = aDecoder.decodeObject(forKey: "email") as? String ?? ""
+        publishedRecipes = aDecoder.decodeObject(forKey: "publishedRecipes") as? [String] ?? []
     }
     
     func encode(with aCoder: NSCoder) {
@@ -77,12 +81,28 @@ class User: NSObject, Identifiable, NSCoding {
         aCoder.encode(password, forKey: "password")
         aCoder.encode(name, forKey: "name")
         aCoder.encode(email, forKey: "email")
+        aCoder.encode(publishedRecipes, forKey: "publishedRecipes")
     }
 }
 
-struct Identifiable_UIImage: Identifiable{
+struct Identifiable_UIImage: Identifiable {
     var id = UUID()
     var image: UIImage
+}
+
+struct trunc_RecipePost: Identifiable {
+    var id = UUID()
+    
+    var title: String
+    var description: String
+    
+    var dict: [String: Any] {
+        return [
+            "id": id.uuidString,
+            "title": title,
+            "description": description
+        ]
+    }
 }
 
 struct RecipePost: Identifiable{
@@ -91,8 +111,9 @@ struct RecipePost: Identifiable{
     var postingUser: String
     var description: String
     var numberOfLike: Int
-    var image: Image
+    var images: [String]
     
+    var title: String
     var steps: [Step]
     var ingredients: [Ingredient]
     
@@ -108,6 +129,8 @@ struct RecipePost: Identifiable{
             "postingUser": postingUser,
             "description": description,
             "numberOfLike": numberOfLike,
+            "images": images,
+            "title": title,
             "steps": steps.formatForFirebase(),
             "ingredients": ingredients.formatForFirebase()
         ]
@@ -120,15 +143,13 @@ struct Ingredient: Identifiable{
     var name: String
     var amount: Double
     var amountUnit: IngredientUnit
-    var order: Int
     
     var dict: [String: Any] {
         return [
             "id": id.uuidString,
             "name": name,
             "amount": amount,
-            "amountUnit": amountUnit.rawValue,
-            "order": order
+            "amountUnit": amountUnit.rawValue
         ]
     }
 }
@@ -137,13 +158,11 @@ struct Step: Identifiable{
     var id = UUID()
     
     var description: String
-    var order: Int
     
     var dict: [String: Any] {
         return [
             "id": id.uuidString,
-            "description": description,
-            "order": order
+            "description": description
         ]
     }
 }
@@ -181,14 +200,5 @@ struct CustomSecureField: View {
 }
 
 class GlobalEnvironment: ObservableObject{
-    @Published var currentUser: User = User.init(username: "", password: "", name: "", email: "", nil)
-    
-    // Global - Visual Items
-    // var tabBar_Height: CGFloat = 48
-    // var mp_height: CGFloat = 50
-    //
-    // var is_EPPresent = false
-    // var is_morePresent = false
-    //
-    // var layoutUnit: CGFloat = 150
+    @Published var currentUser: User = User.init(username: "", password: "", name: "", email: "", publishedRecipes: [], nil)
 }

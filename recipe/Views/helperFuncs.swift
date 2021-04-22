@@ -15,6 +15,7 @@ extension GlobalEnvironment{
         let dataDict: [String: Any?] = [
             "last_login_user": currentUser
         ]
+        print("\(self.currentUser)")
         
         let save_UserDefaults = UserDefaults.standard
         
@@ -25,6 +26,31 @@ extension GlobalEnvironment{
         }
         catch{
             print("Coudn't read file")
+        }
+    }
+    
+    func initializeListener_currentUser(){
+        Firestore.firestore().document("users/\(self.currentUser.establishedID)").addSnapshotListener { querySnapshot, error in
+            guard let document = querySnapshot else {
+                print("Error fetching documents: \(error!)")
+                return
+            }
+            
+            print("new info found with listener")
+            if let data = document.data() { // Set user
+                print("\(document.documentID) => \(data)")
+                
+                self.currentUser = User.init(
+                    username: data["username"] as? String ?? "",
+                    password: data["password"] as? String ?? "",
+                    name: data["name"] as? String ?? "",
+                    email: data["email"] as? String ?? "",
+                    publishedRecipes: data["publishedRecipes"] as? [String] ?? [],
+                    document.documentID
+                )
+                
+               self.save_UserDefaults()
+            }
         }
     }
 }
@@ -111,6 +137,44 @@ func firebaseSubmit(docRef_string: String, data: [String: Any], completion: @esc
             if showDetails {
                 print("data uploaded = \(data)")
             }
+            completion(true)
+        }
+    }
+}
+
+func firebaseUpdate(docRef_string: String, dataToUpdate: [String: Any], completion: @escaping (Any) -> Void, showDetails: Bool = false) {
+    let docRef = Firestore.firestore().document(docRef_string)
+    
+    print("updating data")
+    docRef.setData(dataToUpdate, merge: true) { (error) in
+        if let error =  error {
+            print("Error: \(error)")
+            completion(error)
+        }
+        else{
+            print("successfully updated data")
+            if showDetails {
+                print("data uploaded = \(dataToUpdate)")
+            }
+            completion(true)
+        }
+    }
+}
+
+func firebaseGet(docRef_string: String, completion: @escaping (Any) -> Void, showDetails: Bool = false) {
+    let docRef = Firestore.firestore().document(docRef_string)
+    
+    print("getting data")
+    docRef.getDocument { (document, error) in
+        if let document = document, document.exists {
+            let dataDescription = document.data().map(String.init(describing:)) ?? "nil"
+            print("Document data: \(dataDescription)")
+            completion(true)
+        }
+            
+        if let error = error {
+            print("Error: \(error)")
+            completion(error)
         }
     }
 }
@@ -125,12 +189,31 @@ func uploadImage(_ ref: String, image: UIImage, completion: @escaping (Any) -> V
             }
             else {
                 print("image uploaded successfully")
+                completion(true)
             }
         }
     }
     else {
         print("could not unwrap image as data")
     }
+}
+
+func downloadImage(_ ref: String, completion: @escaping (Any) -> Void, showDetails: Bool = false) -> UIImage {
+    var image: UIImage
+    let storage = Storage.storage()
+    storage.reference().child(ref).getData(maxSize: 1 * 1024 * 1024) { (data, error) in
+        if let error = error {
+            print("an error has occur - \(error.localizedDescription)")
+            completion(error)
+        }
+        else {
+            print("image downloaded successfully")
+            // Data for image is returned
+            image = UIImage(data: data!)!
+            completion(true)
+        }
+    }
+    return image
 }
 
 extension Array where Element == Step {

@@ -9,10 +9,13 @@ import SwiftUI
 
 struct PostView: View {
     var post: RecipePost
+    @State var images: [Identifiable_UIImage] = []
     
     var body: some View {
         VStack(spacing: 0){
-            self.post.image
+            // change to : self.post.images[0]
+            // TODO: get image from firebase
+            Image(systemName: "timelapse")
                 .frame(height: 300)
                 .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: .infinity)
                 .background(Color.init(red: 0.95, green: 0.95, blue: 0.95).opacity(0.8))
@@ -72,7 +75,8 @@ struct PostView_Previews: PreviewProvider {
                     postingUser: "user",
                     description: "This is a description",
                     numberOfLike: 3,
-                    image: Image(systemName: "heart.fill"),
+                    images: [],
+                    title: "Name",
                     steps: [],
                     ingredients: []))
     }

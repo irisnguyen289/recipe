@@ -10,7 +10,7 @@ import Firebase
 import SPAlert
 
 struct LoginView: View {
-    @ObservedObject var env = GlobalEnvironment()
+    @EnvironmentObject var env: GlobalEnvironment
     
     @State private var signup_visible = false
     
@@ -78,16 +78,17 @@ struct LoginView: View {
                                             // Verification
                                             if document.data()["password"] as? String ?? "" == self.password {
                                                 // Set user
-                                                env.currentUser = User.init(
+                                                self.env.currentUser = User.init(
                                                     username: document.data()["username"] as? String ?? "",
                                                     password: document.data()["password"] as? String ?? "",
                                                     name: document.data()["name"] as? String ?? "",
                                                     email: document.data()["email"] as? String ?? "",
+                                                    publishedRecipes: document.data()["publishedRecipes"] as? [String] ?? [],
                                                     document.documentID
                                                 )
                                                 
                                                 // Save user to maintain log in session
-                                                env.save_UserDefaults()
+                                                self.env.save_UserDefaults()
                                                 
                                                 // Change to HomeView
                                                 self.isLoggedIn = true
@@ -123,6 +124,7 @@ struct LoginView: View {
                                         print(savedUser)
                                         
                                         self.env.currentUser = savedUser
+                                        self.env.initializeListener_currentUser()
                                     }
                                     else {
                                         print("couldn't unwrap user")
